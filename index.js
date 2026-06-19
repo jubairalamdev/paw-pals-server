@@ -30,6 +30,7 @@ async function run() {
 
         // Connect with Collection from Database
         const petsCollection = db.collection("pets");
+        const requestsCollection = db.collection("requests");
 
         // All pets API
         app.get('/pets', async (req, res) => {
@@ -52,7 +53,7 @@ async function run() {
         })
 
         // GET Requests by user id API
-        app.get('/requests/:id', verifyToken, async (req, res) => {
+        app.get('/requests/:id', async (req, res) => {
             const { id } = req.params
             const cursor = requestsCollection.find({
                 userId: id
@@ -60,6 +61,17 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result)
         })
+
+        // Get User Requests, by Pet ID
+        app.get('/requests/pets/:id', async (req, res) => {
+            const { id } = req.params
+            const cursor = requestsCollection.find({
+                petId: id
+            });
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
 
 
         await client.db("admin").command({ ping: 1 });
