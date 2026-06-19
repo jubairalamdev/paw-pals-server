@@ -51,6 +51,16 @@ async function run() {
             }
         })
 
+        // GET Requests by user id API
+        app.get('/requests/:id', verifyToken, async (req, res) => {
+            const { id } = req.params
+            const cursor = requestsCollection.find({
+                userId: id
+            });
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
