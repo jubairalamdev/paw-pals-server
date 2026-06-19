@@ -72,6 +72,16 @@ async function run() {
             res.send(result)
         })
 
+        // Get pets listing by User ID API
+        app.get('/pets/listings/:id', async (req, res) => {
+            const { id } = req.params
+            const cursor = petsCollection.find({
+                userId: id
+            });
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
 
 
         await client.db("admin").command({ ping: 1 });
