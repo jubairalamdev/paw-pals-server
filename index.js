@@ -82,6 +82,29 @@ async function run() {
             res.send(result)
         })
 
+        // Post Request API
+        app.post('/requests', async (req, res) => {
+            try {
+                const adoptionData = req.body;
+                const { userId, petId } = adoptionData;
+                const existingRequest = await requestsCollection.findOne({
+                    userId: userId,
+                    petId: petId
+                });
+
+                if (existingRequest) {
+                    return res.status(400).send({
+                        error: "You have already submitted a request for this pet."
+                    });
+                }
+                const result = await requestsCollection.insertOne(adoptionData);
+                res.status(201).send(result);
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ error: "Something went wrong" });
+            }
+        });
+
 
 
         await client.db("admin").command({ ping: 1 });
