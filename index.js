@@ -142,6 +142,31 @@ async function run() {
             res.send(result);
         })
 
+        // Update Pet API
+        app.patch('/pets/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = {
+                _id: new ObjectId(id)
+            }
+            const modifiedPet = req.body;
+            const updatedDocument = {
+                $set: {
+                    name: modifiedPet.name,
+                    species: modifiedPet.species,
+                    breed: modifiedPet.breed,
+                    age: modifiedPet.age,
+                    gender: modifiedPet.gender,
+                    image: modifiedPet.image,
+                    healthStatus: modifiedPet.healthStatus,
+                    vaccinationStatus: modifiedPet.vaccinationStatus,
+                    location: modifiedPet.location,
+                    adoptionFee: modifiedPet.adoptionFee,
+                    description: modifiedPet.description,
+                }
+            }
+            const result = await petsCollection.updateOne(filter, updatedDocument);
+            res.send(result);
+        })
 
 
         await client.db("admin").command({ ping: 1 });
