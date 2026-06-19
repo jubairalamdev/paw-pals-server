@@ -3,7 +3,7 @@ dns.setServers(['8.8.8.8', '8.8.4.4'])
 
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const {createRemoteJWKSet, jwtVerify}= require("jose-cjs");
 require('dotenv').config();
 
@@ -30,13 +30,9 @@ const JWKS = createRemoteJWKSet(
 
 async function run() {
     try {
-        // Connect the Client with Cluster
         await client.connect();
-
-        // Connect with Database from Cluster
         const db = client.db("pawPals");
 
-        // Connect with Collection from Database
         const petsCollection = db.collection("pets");
         const requestsCollection = db.collection("requests");
 
