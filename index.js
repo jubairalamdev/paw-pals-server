@@ -60,14 +60,14 @@ async function run() {
         }
 
         // All pets API
-        app.get('/pets', verifyToken, async (req, res) => {
+        app.get('/pets',   async (req, res) => {
             const cursor = petsCollection.find();
             const result = await cursor.toArray();
             res.send(result)
         })
 
         // GET pet by id API
-        app.get('/pets/:id', verifyToken, async (req, res) => {
+        app.get('/pets/:id',   async (req, res) => {
             const { id } = req.params;
             const query = { _id: new ObjectId(id) }
             try {
@@ -80,7 +80,7 @@ async function run() {
         })
 
         // GET Requests by user id API
-        app.get('/requests/:id', verifyToken, async (req, res) => {
+        app.get('/requests/:id',   async (req, res) => {
             const { id } = req.params
             const cursor = requestsCollection.find({
                 userId: id
@@ -90,7 +90,7 @@ async function run() {
         })
 
         // Get User Requests, by Pet ID
-        app.get('/requests/pets/:id', verifyToken, async (req, res) => {
+        app.get('/requests/pets/:id',   async (req, res) => {
             const { id } = req.params
             const cursor = requestsCollection.find({
                 petId: id
@@ -100,7 +100,7 @@ async function run() {
         })
 
         // Get pets listing by User ID API
-        app.get('/pets/listings/:id', verifyToken, async (req, res) => {
+        app.get('/pets/listings/:id',   async (req, res) => {
             const { id } = req.params
             const cursor = petsCollection.find({
                 userId: id
