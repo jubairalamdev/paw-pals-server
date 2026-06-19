@@ -38,6 +38,19 @@ async function run() {
             res.send(result)
         })
 
+        // GET pet by id API
+        app.get('/pets/:id', async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: new ObjectId(id) }
+            try {
+                const pet = await petsCollection.findOne(query);
+                res.send(pet);
+            }
+            catch (error) {
+                res.send({ ok: false, message: error })
+            }
+        })
+
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
