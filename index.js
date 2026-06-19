@@ -4,7 +4,11 @@ dns.setServers(['8.8.8.8', '8.8.4.4'])
 const express = require('express')
 const cors = require('cors')
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const {createRemoteJWKSet, jwtVerify}= require("jose-cjs");
 require('dotenv').config();
+
+const app = express()
+const port = process.env.PORT || 5000
 
 const uri = process.env.MONGO_DB_URI;
 
@@ -20,6 +24,10 @@ const client = new MongoClient(uri, {
     }
 });
 
+const JWKS = createRemoteJWKSet(
+    new URL(`${process.env.JWKS_URL}`)
+)
+
 async function run() {
     try {
         // Connect the Client with Cluster
@@ -32,15 +40,38 @@ async function run() {
         const petsCollection = db.collection("pets");
         const requestsCollection = db.collection("requests");
 
+        const verifyToken = async(req,res,next)=> {
+            const header = req.headers.authorization
+            if(!header){
+                return res.status(401).json({
+                    message: "Unauthorized"
+                });
+            }
+            const token = header.split(" ")[1];
+            if(!token){
+                return res.status(401).json({
+                    message: "Unauthorized"
+                });
+            }
+            try {
+                const {payload}= await jwtVerify(token,JWKS)
+                next()
+            } catch (error){
+                return res.status(403).json({
+                    message: "Forbidden"
+                });
+            }
+        }
+
         // All pets API
-        app.get('/pets', async (req, res) => {
+        app.get('/pets', verifyToken, async (req, res) => {
             const cursor = petsCollection.find();
             const result = await cursor.toArray();
             res.send(result)
         })
 
         // GET pet by id API
-        app.get('/pets/:id', async (req, res) => {
+        app.get('/pets/:id', verifyToken, async (req, res) => {
             const { id } = req.params;
             const query = { _id: new ObjectId(id) }
             try {
@@ -53,7 +84,7 @@ async function run() {
         })
 
         // GET Requests by user id API
-        app.get('/requests/:id', async (req, res) => {
+        app.get('/requests/:id', verifyToken, async (req, res) => {
             const { id } = req.params
             const cursor = requestsCollection.find({
                 userId: id
@@ -63,7 +94,7 @@ async function run() {
         })
 
         // Get User Requests, by Pet ID
-        app.get('/requests/pets/:id', async (req, res) => {
+        app.get('/requests/pets/:id', verifyToken, async (req, res) => {
             const { id } = req.params
             const cursor = requestsCollection.find({
                 petId: id
@@ -73,7 +104,7 @@ async function run() {
         })
 
         // Get pets listing by User ID API
-        app.get('/pets/listings/:id', async (req, res) => {
+        app.get('/pets/listings/:id', verifyToken, async (req, res) => {
             const { id } = req.params
             const cursor = petsCollection.find({
                 userId: id
