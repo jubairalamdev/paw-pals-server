@@ -105,6 +105,27 @@ async function run() {
             }
         });
 
+        // Cancel Request API
+        app.delete('/requests/:id', async (req, res) => {
+            const { id } = req.params;
+            if (!id || !ObjectId.isValid(id)) {
+                return res.status(400).send({ error: "Invalid or blank ID format provided." });
+            }
+
+            try {
+                const result = await requestsCollection.deleteOne({ _id: new ObjectId(id) });
+                console.log(`Documents deleted: ${result.deletedCount}`);
+                if (result.deletedCount > 0) {
+                    res.send({ message: "Request cancelled successfully" });
+                } else {
+                    res.status(404).send({ error: "No matching request found with that ID" });
+                }
+            } catch (error) {
+                res.status(500).send({ error: "Server failed to process document deletion" });
+            }
+        });
+
+        // add pet API
         app.post('/pets', async (req, res) => {
             const newPet = req.body;
             const result = await petsCollection.insertOne(newPet);
