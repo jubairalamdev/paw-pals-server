@@ -82,7 +82,7 @@ async function run() {
             res.send(result)
         })
 
-        // Post Request API
+        // Post pet from add pet API
         app.post('/requests', async (req, res) => {
             try {
                 const adoptionData = req.body;
@@ -104,6 +104,12 @@ async function run() {
                 res.status(500).send({ error: "Something went wrong" });
             }
         });
+
+        app.post('/pets', async (req, res) => {
+            const newPet = req.body;
+            const result = await petsCollection.insertOne(newPet);
+            res.send(result);
+        })
 
         // delete pet from my listing API 
         app.delete('/pets/:id', async (req, res) => {
